@@ -11,8 +11,8 @@ Amplify.configure(outputs);
 const client = generateClient<Schema>();
 
 // GET: 指定された Invoice ID に一致するレコードを取得
-export async function GET(request: NextRequest, { params }: { params: Promise<{ Id: string }> }) {
-  const id = (await params).Id;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id;
   return new Promise<Response>((resolve, reject) => {
     const subscription = client.models.Invoices.observeQuery({ filter: { InvoiceID: { eq: id } } })
       .subscribe({
