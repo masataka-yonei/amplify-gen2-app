@@ -10,6 +10,7 @@ frontend:
     build:
       commands:
         - npm run build
+        - echo "ACTIVEREPORTSJS_LICENSE_KEY=$ACTIVEREPORTSJS_LICENSE_KEY" >> .env
   artifacts:
     baseDirectory: .next
     files:
