@@ -1,6 +1,8 @@
 'use client'
 import dynamic from 'next/dynamic'
 
+
+
 const FlexGrid = dynamic(
     () => {
         return import("../../components/FlexGrid");
@@ -10,9 +12,9 @@ const FlexGrid = dynamic(
 
 export default function Home() {
     return (
-        <div className="p-8">
-            <h1 className="text-3xl font-bold mb-4 text-sky-500 ">
-                Cloudflare x Wijmo × Next.jsサンプル
+        <div>
+            <h1>
+                Amplify Gen2 x Wijmo サンプル
             </h1>
             <FlexGrid />
         </div>

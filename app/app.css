@@ -63,3 +63,8 @@ body {
     font-weight: 800;
     text-decoration: none;
   }
+
+  .wj-flexgrid {
+    width: 1280px !important;
+    margin: 10px;
+  }

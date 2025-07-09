@@ -11,16 +11,23 @@ import * as WjGrid from "@mescius/wijmo.react.grid";
 import { FlexGridFilter } from "@mescius/wijmo.react.grid.filter";
 import "@mescius/wijmo.cultures/wijmo.culture.ja";
 import { CollectionViewNavigator } from "@mescius/wijmo.react.input";
+import { generateClient } from "aws-amplify/data";
+import type { Schema } from "@/amplify/data/resource";
+import { Amplify } from "aws-amplify";
+import outputs from "@/amplify_outputs.json";
+
+// Amplify の設定を読み込んで初期化
+Amplify.configure(outputs);
 
 import useLicense from '../hooks/useLicense';
 
-const INVOICES_ENDPOINT = "/api/Invoices"; // 請求書APIのパス
+const client = generateClient<Schema>();
 
 /**
  * 請求書レコードの型定義。
  */
-export interface InvoiceRecord {
-  InvoiceID: number;
+export type InvoiceRecord = {
+  InvoiceID: string;
   BillNo: string;
   SlipNo: string;
   CustomerID: string;
@@ -29,12 +36,32 @@ export interface InvoiceRecord {
   Number: number;
   UnitPrice: number;
   Date: string;
-}
+};
+
+//export type InvoiceRecord 
+
+type InvoicesQuery = {
+  items: InvoiceRecord[];
+  isSynced: boolean;
+};
 
 /**
- * ページングおよびフィルタ可能なグリッドで請求書データを表示するFlexGridコンポーネント。
- * 追加、編集、削除、およびサーバーへの変更反映に対応します。
+ * 必須フィールドが全て存在するか検証する
  */
+const isValidInvoice = (item: Partial<InvoiceRecord>): item is InvoiceRecord => {
+  return !!(
+    item.InvoiceID &&
+    item.BillNo &&
+    item.SlipNo &&
+    item.CustomerID &&
+    item.CustomerName &&
+    item.Products &&
+    typeof item.Number === 'number' &&
+    typeof item.UnitPrice === 'number' &&
+    item.Date
+  );
+};
+
 function FlexGrid() {
   const isLicenseLoaded = useLicense(WjCore, 'wijmo');
   const [invoices, setInvoices] = React.useState<WjCore.CollectionView<InvoiceRecord>>(
@@ -46,11 +73,11 @@ function FlexGrid() {
 
   React.useEffect(() => {
     if (!isLicenseLoaded) return;
-    WjCore.httpRequest(INVOICES_ENDPOINT, {
-      success: (xhr) => {
-        const data = JSON.parse(xhr.response) as InvoiceRecord[];
+    
+    client.models.Invoices.observeQuery().subscribe({
+      next: ({ items, isSynced }) => {
         setInvoices(
-          new WjCore.CollectionView<InvoiceRecord>(data, {
+          new WjCore.CollectionView<InvoiceRecord>(items, {
             trackChanges: true,
             pageSize: 15,
           })
@@ -75,15 +102,28 @@ function FlexGrid() {
     }
 
     try {
-      edited.forEach(item =>
-        WjCore.httpRequest(INVOICES_ENDPOINT +'/' + item.InvoiceID, { method: "PUT", data: item })
-      );
-      added.forEach(item =>
-        WjCore.httpRequest(INVOICES_ENDPOINT, { method: "POST", data: item })
-      );
-      removed.forEach(item =>
-        WjCore.httpRequest(INVOICES_ENDPOINT +'/' + item.InvoiceID, { method: "DELETE" })
-      );
+      // 変更されたデータがあれば更新
+      for (const item of edited) {
+        if (isValidInvoice(item)) {
+          await client.models.Invoices.update(item);
+        }
+      }
+
+      // 追加されたデータがあれば登録
+      for (const item of added) {
+        if (isValidInvoice(item)) {
+          await client.models.Invoices.create(item);
+        }
+      }
+
+      // 削除されたデータがあれば削除
+      for (const item of removed) {
+        if (item.InvoiceID) {
+          await client.models.Invoices.delete({
+            InvoiceID: item.InvoiceID
+          });
+        }
+      }
 
       if (edited.length) alert(`${edited.length}件のデータを更新しました。`);
       if (added.length) alert(`${added.length}件のデータを登録しました。`);
@@ -121,4 +161,3 @@ function FlexGrid() {
 };
 
 export default FlexGrid;
-
