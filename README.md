@@ -43,8 +43,8 @@
 
 これらのライブラリは商用ライセンスが必要です。本番環境で使用する場合は、適切なライセンスを取得してください。
 
-- [Wijmoライセンス情報]([https://www.mescius.jp/wijmo/](https://developer.mescius.jp/wijmo#license))
-- [ActiveReportsJSライセンス情報]([https://www.mescius.jp/activereports-js/](https://developer.mescius.jp/activereportsjs#license))
+- [Wijmoライセンス情報](https://developer.mescius.jp/wijmo#license)
+- [ActiveReportsJSライセンス情報](https://developer.mescius.jp/activereportsjs#license)
 
 ## セキュリティ
 
