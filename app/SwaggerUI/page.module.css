@@ -1,0 +1,20 @@
+/* SwaggerPage.module.css */
+.swaggerContainer {
+  /* 既存のスタイル */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: white !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: auto !important;
+  z-index: 1000 !important;
+  display: block !important;
+}
+
+.swaggerContainer * {
+  box-sizing: border-box;
+}
+
